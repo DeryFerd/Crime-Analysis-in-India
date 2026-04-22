@@ -163,9 +163,6 @@ Crime-Analysis-in-India/
 ### 🔹 Crime Analysis Graph
 ![Graph](outputs/graph.png)
 
-## 📄 UI Preview
-
-👉 [Open Live App](https://your-app.streamlit.app)
 
 ---
 
