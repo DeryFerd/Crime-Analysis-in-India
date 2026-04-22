@@ -3,8 +3,8 @@ import pandas as pd
 import joblib
 import os
 
-from train_model import train_model
-from data_preprocessing import clean_data
+from src.train_model import train_model
+from src.data_preprocessing import clean_data
 
 st.set_page_config(page_title="Crime Analysis", layout="centered")
 
