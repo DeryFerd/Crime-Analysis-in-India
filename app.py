@@ -3,62 +3,72 @@ import pandas as pd
 import joblib
 import os
 
-from train_model import train_model # type: ignore
+from train_model import train_model
+from data_preprocessing import clean_data
 
 st.set_page_config(page_title="Crime Analysis", layout="centered")
 
 st.title("🚔 Crime Pattern Analysis in India")
 
-# ================= TRAIN MODEL BUTTON =================
+# ================= TRAIN MODEL + LEADERBOARD =================
+st.subheader("⚙️ Train Model & Submit Score")
+
 github_user = st.text_input("Enter your GitHub Username")
 
+acc = None  # initialize
+
 if st.button("Train / Retrain Model"):
-    
 
-        df = pd.read_csv("data/crime_dataset_india.csv")
-        model, X_test, y_test = train_model(df)
+    df = pd.read_csv("data/crime_dataset_india.csv")
 
-        from sklearn.metrics import accuracy_score
-        y_pred = model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
+    model, X_test, y_test = train_model(df)
 
-        st.success(f"✅ Model trained! Accuracy: {round(acc*100, 2)}%")
+    from sklearn.metrics import accuracy_score
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
 
-        # ================= SAVE TO LEADERBOARD =================
+    st.success(f"✅ Model trained! Accuracy: {round(acc*100, 2)}%")
+
+    # -------- SAVE TO LEADERBOARD --------
+    if github_user.strip() != "":
         file_path = "leaderboard.csv"
 
-if github_user.strip() != "": # type: ignore
-    new_entry = pd.DataFrame(
-        [[github_user, "RandomForest", acc]], # type: ignore
-        columns=["GitHub", "Model", "Accuracy"]
-    )
+        new_entry = pd.DataFrame(
+            [[github_user, "RandomForest", acc]],
+            columns=["GitHub", "Model", "Accuracy"]
+        )
 
-    if os.path.exists(file_path):
-        old = pd.read_csv(file_path)
+        if os.path.exists(file_path):
+            old = pd.read_csv(file_path)
 
-        # Remove duplicate entries (keep best score)
-        old = old[old["GitHub"] != github_user] # type: ignore
+            # Remove duplicate entries
+            old = old[old["GitHub"] != github_user]
 
-        updated = pd.concat([old, new_entry], ignore_index=True)
+            updated = pd.concat([old, new_entry], ignore_index=True)
+        else:
+            updated = new_entry
+
+        updated = updated.sort_values(by="Accuracy", ascending=False)
+        updated.to_csv(file_path, index=False)
+
+        st.success("🏆 Score submitted to leaderboard!")
+
     else:
-        updated = new_entry
+        st.warning("⚠️ Enter GitHub username!")
 
-    updated = updated.sort_values(by="Accuracy", ascending=False)
+# ================= LOAD OR AUTO-TRAIN MODEL =================
+st.subheader("🤖 Model Initialization")
 
-    updated.to_csv(file_path, index=False)
-
-    st.success("🏆 Score submitted to leaderboard!")
-else:
-    st.warning("Enter GitHub username!")
-
-
-# ---------------- LOAD OR TRAIN ----------------
 if not os.path.exists("models/trained_model.pkl"):
 
     st.warning("⚠️ Model not found. Training automatically...")
 
     df = pd.read_csv("data/crime_dataset_india.csv")
-    model, X_test, y_test = train_model(df)
+
+    with st.spinner("Training model..."):
+        model, X_test, y_test = train_model(df)
+
+    model_columns = X_test.columns
 
     st.success("✅ Model trained automatically!")
 
@@ -66,81 +76,72 @@ else:
     model = joblib.load("models/trained_model.pkl")
     model_columns = joblib.load("models/columns.pkl")
 
-# ================= SHOW ACCURACY =================
+# ================= MODEL PERFORMANCE =================
 st.subheader("📊 Model Performance")
 
-if model is not None:
-    try:
-        df = pd.read_csv("data/crime_dataset_india.csv")
+try:
+    df = pd.read_csv("data/crime_dataset_india.csv")
+    df = clean_data(df)
 
-        # Prepare data same as training
-        from data_preprocessing import clean_data # type: ignore
-        df = clean_data(df)
+    df = df.drop([
+        "Report Number",
+        "Date Reported",
+        "Date of Occurrence",
+        "Time of Occurrence",
+        "Crime Description",
+        "Date Case Closed"
+    ], axis=1)
 
-        df = df.drop([
-            "Report Number",
-            "Date Reported",
-            "Date of Occurrence",
-            "Time of Occurrence",
-            "Crime Description",
-            "Date Case Closed"
-        ], axis=1)
+    y = df["Crime Domain"]
+    X = df.drop("Crime Domain", axis=1)
 
-        y = df["Crime Domain"]
-        X = df.drop("Crime Domain", axis=1)
-        X = pd.get_dummies(X, drop_first=True)
+    X = pd.get_dummies(X, drop_first=True)
 
-        # Align columns
-        for col in model_columns:
-            if col not in X:
-                X[col] = 0
-        X = X[model_columns]
+    # Align columns
+    for col in model_columns:
+        if col not in X:
+            X[col] = 0
 
-        from sklearn.metrics import accuracy_score
-        y_pred = model.predict(X)
-        acc = accuracy_score(y, y_pred)
+    X = X[model_columns]
 
-        st.info(f"📈 Current Model Accuracy: {round(acc*100, 2)}%")
+    from sklearn.metrics import accuracy_score
+    y_pred = model.predict(X)
+    acc_full = accuracy_score(y, y_pred)
 
-    except:
-        st.warning("⚠️ Could not calculate accuracy")
+    st.info(f"📈 Current Model Accuracy: {round(acc_full*100, 2)}%")
 
-else:
-    st.warning("⚠️ Model not found. Please train the model first.")
+except Exception as e:
+    st.warning("⚠️ Could not calculate accuracy")
 
 # ================= PREDICTION =================
 st.subheader("🔍 Predict Crime Type")
 
-if model is not None:
+city = st.selectbox("City", ["Mumbai", "Delhi", "Bangalore", "Pune"])
+victim_age = st.number_input("Victim Age", min_value=0, max_value=100)
+gender = st.selectbox("Victim Gender", ["Male", "Female"])
+weapon = st.selectbox("Weapon Used", ["Knife", "Gun", "None", "Unknown"])
+police = st.number_input("Police Deployed", min_value=0)
 
-    city = st.selectbox("City", ["Mumbai", "Delhi", "Bangalore", "Pune"])
-    victim_age = st.number_input("Victim Age", min_value=0, max_value=100)
-    gender = st.selectbox("Victim Gender", ["Male", "Female"])
-    weapon = st.selectbox("Weapon Used", ["Knife", "Gun", "None", "Unknown"])
-    police = st.number_input("Police Deployed", min_value=0)
+input_data = pd.DataFrame({
+    "City": [city],
+    "Victim Age": [victim_age],
+    "Victim Gender": [gender],
+    "Weapon Used": [weapon],
+    "Police Deployed": [police]
+})
 
-    input_data = pd.DataFrame({
-        "City": [city],
-        "Victim Age": [victim_age],
-        "Victim Gender": [gender],
-        "Weapon Used": [weapon],
-        "Police Deployed": [police]
-    })
+input_data = pd.get_dummies(input_data)
 
-    input_data = pd.get_dummies(input_data)
+# Align columns
+for col in model_columns:
+    if col not in input_data:
+        input_data[col] = 0
 
-    for col in model_columns:
-        if col not in input_data:
-            input_data[col] = 0
+input_data = input_data[model_columns]
 
-    input_data = input_data[model_columns]
-
-    if st.button("Predict"):
-        prediction = model.predict(input_data)
-        st.success(f"🚨 Predicted Crime Domain: {prediction[0]}")
-
-else:
-    st.info("👉 Train the model first to enable prediction")
+if st.button("Predict Crime Type"):
+    prediction = model.predict(input_data)
+    st.success(f"🚨 Predicted Crime Domain: {prediction[0]}")
 
 # ================= DATASET VIEW =================
 st.subheader("📂 Dataset Preview")
