@@ -1,2 +1,3 @@
-trained_model.pkl is hosted externally due to size limits.
-Download link is provided in README.
+Go to src Folder
+Click train_model.py
+Train the model.
