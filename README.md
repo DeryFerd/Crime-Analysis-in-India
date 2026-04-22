@@ -185,17 +185,11 @@ Crime-Analysis-in-India/
 
 ## 🏆 Leaderboard
 
-Track the performance of contributors based on model accuracy.
-
 👉 [View Full Leaderboard](leaderboard.csv)
 
-### 🥇 Top Performers
-
-| Rank | GitHub User | Model | Accuracy |
-|------|------------|--------|----------|
-| 1    | Coming Soon | RandomForest | -- |
-| 2    | Coming Soon | -- | -- |
-| 3    | Coming Soon | -- | -- |
+<!-- LEADERBOARD_START -->
+Loading leaderboard...
+<!-- LEADERBOARD_END -->
 
 ---
 
