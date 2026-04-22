@@ -165,7 +165,7 @@ Crime-Analysis-in-India/
 
 ## 📄 UI Preview
 
-![View UI Screens](outputs/ui.pdf)
+![Crime_Analysis[webpage]](https://crime-analysis-in-india-jtxuwvnkxxfoqocfzhnzex.streamlit.app/)
 
 ---
 
@@ -185,7 +185,7 @@ Crime-Analysis-in-India/
 
 ## 🏆 Leaderboard
 
-👉 [View Full Leaderboard](leaderboard.csv)
+👉 [View Full Leaderboard](https://crime-analysis-in-india-jtxuwvnkxxfoqocfzhnzex.streamlit.app/leaderboard)
 
 <!-- LEADERBOARD_START -->
 | Rank | GitHub | Model | Accuracy |
