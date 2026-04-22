@@ -1,5 +1,3 @@
-import pandas as pd
-import os
 import streamlit as st
 import pandas as pd
 import joblib
@@ -53,11 +51,18 @@ if github_user.strip() != "": # type: ignore
 else:
     st.warning("Enter GitHub username!")
 
-# ================= LOAD MODEL =================
-model = None
-model_columns = None
 
-if os.path.exists("models/trained_model.pkl") and os.path.exists("models/columns.pkl"):
+# ---------------- LOAD OR TRAIN ----------------
+if not os.path.exists("models/trained_model.pkl"):
+
+    st.warning("⚠️ Model not found. Training automatically...")
+
+    df = pd.read_csv("data/crime_dataset_india.csv")
+    model, X_test, y_test = train_model(df)
+
+    st.success("✅ Model trained automatically!")
+
+else:
     model = joblib.load("models/trained_model.pkl")
     model_columns = joblib.load("models/columns.pkl")
 
