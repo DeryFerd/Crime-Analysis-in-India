@@ -30,22 +30,6 @@ This project focuses on analyzing and predicting crime patterns in India using M
 - Jupyter
 ---
 
-## 📂 Project Structure
-
-```
-crime-pattern-analysis-india/
-│
-├── README.md
-├── requirements.txt
-├── data/
-├── notebooks/
-├── src/
-├── models/
-├── outputs/
-└── app/
-```
-
----
 
 ## 📊 Dataset
 
