@@ -192,17 +192,60 @@ Crime-Analysis-in-India/
 
 ---
 
-### 📌 How to Participate
+## 📌 How to Participate
 
-1. Clone the repository  
-2. Run the project and train the model  
-3. Enter your GitHub username in the app  
-4. Your score will be saved in `leaderboard.csv`  
-5. Push your changes:
+Follow these simple steps to contribute to the leaderboard:
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/aayu04shi/Crime-Analysis-in-India.git
+cd Crime-Analysis-in-India
+```
+
+---
+
+### 2️⃣ Install Requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 3️⃣ Run the Application
+
+```bash
+streamlit run app.py
+```
+
+---
+
+### 4️⃣ Train the Model
+
+* Enter your **GitHub username** in the app
+* Click **"Train / Retrain Model"**
+
+✅ The system will:
+
+* Train the ML model
+* Calculate accuracy
+* Save your score to the leaderboard
+
+---
+
+### 5️⃣ Update the Global Leaderboard
+
+After training, push your score:
 
 ```bash
 git add leaderboard.csv
-git commit -m "Added my score"
+git commit -m "Added my model score"
 git push
+```
 
 
+---
+
+👉 Click here to view full leaderboard:
+[🔗 View Full Leaderboard](https://crime-analysis-in-india-jtxuwwnkxxfoqocfzhznex.streamlit.app/leaderboard)
