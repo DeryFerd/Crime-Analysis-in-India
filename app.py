@@ -12,22 +12,46 @@ st.set_page_config(page_title="Crime Analysis", layout="centered")
 st.title("🚔 Crime Pattern Analysis in India")
 
 # ================= TRAIN MODEL BUTTON =================
-st.subheader("⚙️ Train Model")
+github_user = st.text_input("Enter your GitHub Username")
 
 if st.button("Train / Retrain Model"):
-    try:
+    
+
         df = pd.read_csv("data/crime_dataset_india.csv")
         model, X_test, y_test = train_model(df)
 
-        # Calculate accuracy again for UI
         from sklearn.metrics import accuracy_score
         y_pred = model.predict(X_test)
         acc = accuracy_score(y_test, y_pred)
 
-        st.success(f"✅ Model trained successfully! Accuracy: {round(acc*100, 2)}%")
+        st.success(f"✅ Model trained! Accuracy: {round(acc*100, 2)}%")
 
-    except Exception as e:
-        st.error(f"❌ Error during training: {e}")
+        # ================= SAVE TO LEADERBOARD =================
+        file_path = "leaderboard.csv"
+
+if github_user.strip() != "": # type: ignore
+    new_entry = pd.DataFrame(
+        [[github_user, "RandomForest", acc]], # type: ignore
+        columns=["GitHub", "Model", "Accuracy"]
+    )
+
+    if os.path.exists(file_path):
+        old = pd.read_csv(file_path)
+
+        # Remove duplicate entries (keep best score)
+        old = old[old["GitHub"] != github_user] # type: ignore
+
+        updated = pd.concat([old, new_entry], ignore_index=True)
+    else:
+        updated = new_entry
+
+    updated = updated.sort_values(by="Accuracy", ascending=False)
+
+    updated.to_csv(file_path, index=False)
+
+    st.success("🏆 Score submitted to leaderboard!")
+else:
+    st.warning("Enter GitHub username!")
 
 # ================= LOAD MODEL =================
 model = None
