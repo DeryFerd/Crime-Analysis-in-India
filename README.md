@@ -188,7 +188,9 @@ Crime-Analysis-in-India/
 👉 [View Full Leaderboard](leaderboard.csv)
 
 <!-- LEADERBOARD_START -->
-Loading leaderboard...
+| Rank | GitHub | Model | Accuracy |
+|------|--------|--------|----------|
+| 1 | Aayushi | RandomForest | 85.0% |
 <!-- LEADERBOARD_END -->
 
 ---
