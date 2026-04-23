@@ -1,3 +1,4 @@
 GitHub,Model,Accuracy
 aayu04shi,RandomForest,0.5702191235059761
 idrees,K-NN,100
+sreeya,logisticregression,50
