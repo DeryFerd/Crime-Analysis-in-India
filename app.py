@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import time
 import streamlit as st
 import pandas as pd
 import joblib
@@ -15,7 +16,7 @@ st.set_page_config(page_title="Crime Analysis", layout="centered")
 
 st.title("🚔 Crime Pattern Analysis in India")
 
-# ================= TRAIN MODEL + LEADERBOARD =================
+# ================= TRAIN MODEL + SUBMISSION + LEADERBOARD =================
 st.subheader("⚙️ Train Model & Submit Score")
 
 github_user = st.text_input("Enter your GitHub Username")
@@ -32,7 +33,25 @@ if st.button("Train / Retrain Model"):
 
     st.success(f"✅ Model trained! Accuracy: {round(acc*100, 2)}%")
 
-    # -------- SAVE TO LEADERBOARD --------
+    # ================= SAVE SUBMISSION FILE =================
+    submissions_folder = "submissions"
+
+    if not os.path.exists(submissions_folder):
+        os.makedirs(submissions_folder)
+
+    # Unique filename using timestamp
+    submission_file = f"{submissions_folder}/{github_user}_{int(time.time())}.csv"
+
+    submission_df = pd.DataFrame(
+        [[github_user, "RandomForest", acc]],
+        columns=["GitHub", "Model", "Accuracy"]
+    )
+
+    submission_df.to_csv(submission_file, index=False)
+
+    st.success(f"📁 Submission saved: {submission_file}")
+
+    # ================= SAVE TO LEADERBOARD =================
     if github_user.strip() != "":
         file_path = "leaderboard.csv"
 
@@ -44,15 +63,14 @@ if st.button("Train / Retrain Model"):
         if os.path.exists(file_path):
             old = pd.read_csv(file_path)
 
-            # 🧠 FIX: remove duplicates, keep best score
+            # Keep only best score per user
             old = old.sort_values("Accuracy", ascending=False)
             old = old.drop_duplicates(subset="GitHub", keep="first")
 
-            # remove current user (so new score replaces)
+            # Remove current user to replace with new score
             old = old[old["GitHub"] != github_user]
 
             updated = pd.concat([old, new_entry], ignore_index=True)
-
         else:
             updated = new_entry
 
@@ -63,14 +81,14 @@ if st.button("Train / Retrain Model"):
 
         # ================= AUTO PUSH (LOCAL ONLY) =================
         try:
-            subprocess.run(["git", "add", "leaderboard.csv"], check=True)
-            subprocess.run(["git", "commit", "-m", "auto update leaderboard"], check=True)
+            subprocess.run(["git", "add", "."], check=True)
+            subprocess.run(["git", "commit", "-m", "auto update leaderboard + submission"], check=True)
             subprocess.run(["git", "push"], check=True)
 
-            st.success("🚀 Leaderboard auto-pushed to GitHub!")
+            st.success("🚀 Changes auto-pushed to GitHub!")
 
         except Exception:
-            st.warning("⚠️ Auto-push works only locally. Push manually if needed.")
+            st.warning("⚠️ Auto-push works only locally. Please push manually.")
 
     else:
         st.warning("⚠️ Enter GitHub username!")
