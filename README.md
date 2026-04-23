@@ -250,9 +250,7 @@ git push
 <!-- LEADERBOARD_START -->
 | Rank | GitHub | Model | Accuracy |
 |------|--------|--------|----------|
-| 1 | idrees | K-NN | 10000.0% |
-| 2 | sreeya | logisticregression | 5000.0% |
-| 3 | aayu04shi | RandomForest | 57.02% |
+| 1 | aayu04shi | RandomForest | 57.02% |
 <!-- LEADERBOARD_END -->
 
 ---
